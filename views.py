@@ -45,3 +45,32 @@ def contact(request):
         return render(request,"contact.html",{'success':True})
     return render(request,"contact.html",{})
 #------------------------------- Pause -----------------------------------
+
+
+
+
+
+#-----------------------------Handle Logins ------------------------------|
+def logn(r):
+    email           = r.POST.get('email','')
+    password        = r.POST.get('password','')
+    userv           = False
+    user            = False
+    if r.GET.get('out',''):
+            logout(r)
+            return redirect('register')
+
+    if email.__contains__("@"):
+        try:
+            user        = User.objects.get(email=email)
+            userv       = user.check_password(password)
+        except:
+            pass
+    else:
+            user            = authenticate(username=email,password=password)
+    if user or userv:
+        login(r,user)
+        books            = Book.objects.all().order_by('pk')
+        return render(r,'books.html',{'buks':books,'current_user':user})
+
+    return render(r,'people.html',{'login':True,'error':True,'u':email})
