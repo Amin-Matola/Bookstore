@@ -13,7 +13,9 @@ from .serializers import UserSerializer,GroupSerializer
 from rest_framework import viewsets
 from django.conf import settings
 import os
-import stripe
+#--------------------- Stripe For Handling Payments -------------------------|
+import stripe #....... Function not included for security ...................|
+#----------------------------------------------------------------------------|
 from django.core.files.storage import default_storage
 #from django.core.servers.basehttp import FileWrapper
 import mimetypes
