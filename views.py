@@ -135,3 +135,16 @@ def logn(r):
         return render(r,'books.html',{'buks':books,'current_user':user})
 
     return render(r,'people.html',{'login':True,'error':True,'u':email})
+
+
+#--------------------------- Search A Book ----------------------------------|
+def search(request):
+    if request.method=='GET':
+        user        = request.user
+        data        = request.GET.get('q','')
+        try:
+            book    = Book.objects.filter(book_title__contains=data.title()).all()
+        except Exception as e:
+            return HttpResponse("That was an error :<hr>!%s"%e)
+
+    return render(request,'books.html',{'search':book,'current_user':user,'total':len(book)})
