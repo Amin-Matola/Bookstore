@@ -222,4 +222,19 @@ def download(request):
         #------------- Everything is done, return the successful download to the browser -------------
         return response
     
+#-------------------------------------- Delete Some Books In the System --------------------------|
+def delete(request):
+        b_id=request.GET.get('book','')
+        #return HttpResponse(str(request.GET.get('book','')))
+        #b_id = 1
+        if b_id and request.user.is_superuser:
+            bookToDelete    = Book.objects.get(id=int(b_id))
+            #buks        = books.query.all()
+
+            try:
+                bookToDelete.delete()
+                return redirect('/data')
+            except Exception as e:
+                return HttpResponse("<h1>Oops! Oops! That is an error:</h1><hr>%s"%e)
+    
    
