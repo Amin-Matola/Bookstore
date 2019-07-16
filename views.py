@@ -47,6 +47,57 @@ def contact(request):
 #------------------------------- Pause -----------------------------------
 
 
+#------------------Make loading a user easy task -------------------------
+def load_user(clas,email):
+    try:
+        user            = clas.objects.get(email=email)
+        return user
+    except Exception as e:
+        return False
+
+
+#------Handle Registrations: http://coders.pythonanywhere.com/register----|
+def register(request):
+    if request.method=='GET':
+        if request.GET.get('login',''):
+            return render(request,'data/people.html',{'login':False})
+
+        return render(request,'data/people.html',{'login':True})
+    if request.GET.get('register',''):
+        return logn(request)
+    try:
+        username        = request.POST.get('username','')
+        fname           = request.POST.get('fname',"")
+        lname           = request.POST.get('lname',"")
+        mobile          = request.POST.get('mobile','')
+        email           = request.POST.get('email','')
+        gender          = request.POST.get('gender',"")
+        address         = request.POST.get('address','')
+        role            = request.POST.get('role','')
+        password        = request.POST.get('password','')
+    except Exception as e:
+        return HttpResponse("<h2>Hello %s, please fill your form correctly............</h2>"%request.POST.get('fname',''))
+
+    if load_user(User,email):
+        return HttpResponse("<h2>You are already registered, please <a href='/login'>login</a></h2>")
+    else:
+        logging_user    = User(username=username,first_name=fname,last_name=lname,email=email,password=password)
+        logging_user.set_password(password)
+        logging_user.save()
+
+    if gender:
+        gender          = 'male'
+    else:
+        gender          = 'female'
+
+    user                = Users(user=logging_user, mobile=mobile, gender=gender, address=address)
+
+
+    try:
+        user.save()
+    except Exception as e:
+        return HttpResponse("Some Error Message In here")
+    return redirect('/')
 
 
 
