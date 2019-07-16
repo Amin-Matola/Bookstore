@@ -148,3 +148,34 @@ def search(request):
             return HttpResponse("That was an error :<hr>!%s"%e)
 
     return render(request,'books.html',{'search':book,'current_user':user,'total':len(book)})
+
+
+#----------------------------------- Download A Book ---------------------------------------
+def download(request):
+    if request.method=='GET':
+        if not request.user.is_authenticated:
+            return redirect('register')
+        ruser  = User.objects.get(pk=request.user.pk)
+        user   = Users.objects.get(user=ruser)
+        if not user.paid:
+            #-------------------- Non-Paid Users are limited to only 5 Downloads ------------------
+            if user.downloads   >=  5:
+                return render(request,'data/books.html',{'buks':Book.objects.all()[:5],'etype':True})
+            
+        #------- Otherwise even if he is unpaid, but have less than 5 downloads --------------------
+        f               = request.GET.get('img','')
+        book            = Book.objects.get(pk=f)
+        f_file          = book.book_image.url
+        #------------- Increment book downloads by 1 and let him continue --------------------------
+        book.downloads += 1
+        book.save()
+        file            = open(settings.MEDIA_ROOT+"/"+f_file.split('/')[-1],'rb')
+        #wrapper        = FileWrapper(file(file))
+        response        = HttpResponse(file.read(),content_type="application/pdf") #mimetypes.guess_type(file)[0])
+        #response['Content-Length']=os.path.getsize(file)
+        response['Content-Disposition'] =   'attachment; filename=%s'%f_file.split('/')[-1]
+        #------------- Increment the User's downloads by 1 ------------------------------------------
+        user.downloads      +=   1
+        user.save()
+        #------------- Everything is done, return the successful download to the browser -------------
+        return response
