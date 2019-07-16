@@ -26,6 +26,16 @@ def handler404(request):
     #--------------------------Handle Not Found Errors ------------------|
     return render(request,"404.html",{'url':request.path})
 
+#-----------The home Page: http://coders.pythonanywhere.com--------------|
+def index(request):
+    #----------------For a new comer, retrieve only 5 books -------------|
+    books            = Book.objects.all().order_by('pk')[:5]
+    return render(request,
+                  'data/books.html',
+                  {'buks':books,
+                   'current_user':request.user})
+
+
 #-------------- About Us: http://coders.pythonanywhere.com/about --------|
 def about(request):
     return render(request,'about.html',{})
