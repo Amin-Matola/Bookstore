@@ -150,6 +150,48 @@ def search(request):
     return render(request,'books.html',{'search':book,'current_user':user,'total':len(book)})
 
 
+#----------------------------------- Book Registration ------------------------------------
+def book(request):
+
+    buks        = Book.objects.all()[:5]
+    people      = Users.objects.all()
+    user        = request.user
+    if request.method=='GET':
+        if not request.user.is_authenticated:
+            return register(request)
+        return render(request,'data/books.html',{'buks':buks,'current_user':user})
+
+    if not request.user.is_authenticated:
+        return register(request)
+
+    title       = request.POST['title'].title()
+    auther      = request.POST.get('auther','')
+    image       = request.FILES.get('image','')
+    date        = request.POST.get('date','')
+    category    = request.POST.get('category','')
+
+
+    if image:
+        #if request.user.is_superuser:
+            path    = os.path.join(settings.MEDIA_ROOT,image.name)
+            #image  = req.urlretrieve(url,path)
+            savedto = default_storage.save(path,image)
+        # else:
+        #     image = req.urlretrieve('http://coders.pythonanywhere.com/media/net.jpg',image.name)
+
+    #book           = Books(book_title=title,auther=auther,book_image=path)
+    documents       = ['pdf','docx']
+    file_type=image.name.split('.')[-1]
+    #if file_type in documents:
+    #    book       = Book(book_title=title,auther=auther,book_image='https://amix.pythonanywhere.com/static/icon.jpg' ,date_published=date,category=category)
+    #else:
+    book            = Book(book_title=title,auther=auther,book_image=image.name,date_published=date,category=category)
+    book.save()
+    try:
+        return render(request,'books.html',{'book':True,'current_user':user,'buks':buks})
+    except Exception as e:
+        return render(request,'uploads/librarian.html',{'error':True})
+
 #----------------------------------- Download A Book ---------------------------------------
 def download(request):
     if request.method=='GET':
@@ -179,3 +221,5 @@ def download(request):
         user.save()
         #------------- Everything is done, return the successful download to the browser -------------
         return response
+    
+   
